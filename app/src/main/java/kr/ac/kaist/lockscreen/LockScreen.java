@@ -30,7 +30,7 @@ public class LockScreen extends AppCompatActivity {
         Button esmButton = (Button)findViewById(R.id.ESM);
 
         //서비스
-        final Intent intent = new Intent(this, CountService.class);
+        final Intent intentService = new Intent(this, CountService.class);
 
         //Toast.makeText(getApplicationContext(), "최초생성", Toast.LENGTH_LONG).show();
 
@@ -40,11 +40,12 @@ public class LockScreen extends AppCompatActivity {
         homeButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                editor.putInt("FocusMode",0);
-                editor.commit();
+                //Toast.makeText(getApplicationContext(), "홈화면으로 이동", Toast.LENGTH_LONG).show();
 
-                startService(intent);
+                stopService(intentService);
+                startService(intentService);
 
+                //홈화면으로 이동
                 Intent intent = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
                 intent.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가

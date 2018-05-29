@@ -70,6 +70,7 @@ public class CountService extends Service {
     @Override
     public void onDestroy(){
         super.onDestroy();
+        Log.i("test", "서비스 종료");
         isStop = true;
         unregisterReceiver(mReceiver);
     }
