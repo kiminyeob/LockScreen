@@ -7,19 +7,34 @@ import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Binder;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 public class CountService extends Service {
     protected SharedPreferences pref=null;
     protected SharedPreferences.Editor editor =null;
+    protected SharedPreferences pref_count =null;
+    protected SharedPreferences.Editor editor_count =null;
     private BroadcastReceiver mReceiver;
     protected boolean isStop=  false;
-    protected int trigger_duration_in_second = 15;
+    protected int trigger_duration_in_second = 5;
+    public int count = 0;
+    //public int Aftercount = 0;
+
+    private final IBinder mBinder = new LocalBinder();
+
+    class LocalBinder extends Binder {
+        CountService getService(){
+            return CountService.this;
+        }
+    }
 
     public CountService() {
     }
+
 
     @Override
     public void onCreate(){
@@ -28,6 +43,12 @@ public class CountService extends Service {
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         mReceiver = new ScreenReceiver();
         registerReceiver(mReceiver, filter);
+
+        pref = getSharedPreferences("FocusMode", Activity.MODE_PRIVATE);
+        editor = pref.edit();
+
+        pref_count = getSharedPreferences("Count", Activity.MODE_PRIVATE);
+        editor_count = pref_count.edit();
 
         //카운터 시작
         isStop = false;
@@ -38,14 +59,13 @@ public class CountService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+        //throw new UnsupportedOperationException("Not yet implemented");
+        return mBinder;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
         super.onStartCommand(intent, flags, startId);
-        pref = getSharedPreferences("FocusMode", Activity.MODE_PRIVATE);
-        editor = pref.edit();
 
         //노티바 고정 띄우기
         Notification notiEx = new NotificationCompat.Builder(CountService.this)
@@ -76,33 +96,43 @@ public class CountService extends Service {
     }
 
     private class Counter implements Runnable {
-        private int count = 0;
         //private Handler handler = new Handler();
 
         @Override
         public void run() {
+            editor_count.putInt("Count",0);
+            editor_count.commit();
             while(!isStop){
                 Log.i("test", String.valueOf(count++));
-                try {
-                    Thread.sleep(1000);
-                    editor.putInt("FocusMode",0);
-                    editor.commit();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if(count == trigger_duration_in_second){
+                if(count > trigger_duration_in_second){
                     try{
-                        Thread.sleep(2000);
+                        Thread.sleep(1000);
                         editor.putInt("FocusMode",1);
                         editor.commit();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    break;
                 }
+                else {
+                    try {
+                        Thread.sleep(1000);
+                        editor.putInt("FocusMode", 0);
+                        editor.commit();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                editor_count.putInt("Count",count-trigger_duration_in_second);
+                editor_count.commit();
+
             }
             Log.i("test", "Thread finished counter is at " + String.valueOf(count));
         }
+    }
+
+    int getCount(){
+        return count;
     }
 }
 
