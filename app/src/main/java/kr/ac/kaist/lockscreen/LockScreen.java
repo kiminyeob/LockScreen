@@ -24,7 +24,7 @@ public class LockScreen extends AppCompatActivity {
         Button homeButton = (Button)findViewById(R.id.home);
         Button esmButton = (Button)findViewById(R.id.ESM);
 
-        //Toast.makeText(getApplicationContext(), "최초생성", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "최초생성", Toast.LENGTH_LONG).show();
 
         homeButton.setOnClickListener(new View.OnClickListener(){
             @Override
