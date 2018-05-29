@@ -1,6 +1,8 @@
 package kr.ac.kaist.lockscreen;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -11,6 +13,9 @@ import android.widget.Button;
 import android.widget.Toast;
 
 public class LockScreen extends AppCompatActivity {
+    protected SharedPreferences pref=null;
+    protected SharedPreferences.Editor editor =null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,11 +29,22 @@ public class LockScreen extends AppCompatActivity {
         Button homeButton = (Button)findViewById(R.id.home);
         Button esmButton = (Button)findViewById(R.id.ESM);
 
-        Toast.makeText(getApplicationContext(), "최초생성", Toast.LENGTH_LONG).show();
+        //서비스
+        final Intent intent = new Intent(this, CountService.class);
+
+        //Toast.makeText(getApplicationContext(), "최초생성", Toast.LENGTH_LONG).show();
+
+        pref = getSharedPreferences("FocusMode", Activity.MODE_PRIVATE);
+        editor = pref.edit();
 
         homeButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+                editor.putInt("FocusMode",0);
+                editor.commit();
+
+                startService(intent);
+
                 Intent intent = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
                 intent.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
