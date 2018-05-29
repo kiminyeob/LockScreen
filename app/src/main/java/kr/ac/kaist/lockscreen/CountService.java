@@ -16,7 +16,7 @@ public class CountService extends Service {
     protected SharedPreferences.Editor editor =null;
     private BroadcastReceiver mReceiver;
     protected boolean isStop=  false;
-    protected int trigger_duration_in_second = 100;
+    protected int trigger_duration_in_second = 15;
 
     public CountService() {
     }
@@ -55,7 +55,7 @@ public class CountService extends Service {
                 .build();
         startForeground(9999, notiEx);
 
-        //Screen receiver 로부터 Screen On/OFF Event 를 받을 수 있음
+        //Screen receiver로부터 Screen On/OFF event를 받을 수 있음
         if( intent == null)
         {
             IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
@@ -84,10 +84,19 @@ public class CountService extends Service {
                 Log.i("test", String.valueOf(count++));
                 try {
                     Thread.sleep(1000);
+                    editor.putInt("FocusMode",0);
+                    editor.commit();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 if(count == trigger_duration_in_second){
+                    try{
+                        Thread.sleep(2000);
+                        editor.putInt("FocusMode",1);
+                        editor.commit();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 }
             }
