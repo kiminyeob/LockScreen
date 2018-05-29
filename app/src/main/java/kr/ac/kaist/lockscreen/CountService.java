@@ -44,7 +44,7 @@ public class CountService extends Service {
         pref = getSharedPreferences("FocusMode", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
-        //노티바 계속 띄우기
+        //노티바 고정 띄우기
         Notification notiEx = new NotificationCompat.Builder(CountService.this)
                 .setContentTitle("락스크린")
                 .setContentText("실험에 참여해 주셔서 감사합니다")
@@ -52,6 +52,7 @@ public class CountService extends Service {
                 .build();
         startForeground(9999, notiEx);
 
+        //Screen receiver로부터 Screen On/OFF event를 받을 수 있음
         if( intent == null)
         {
             IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
