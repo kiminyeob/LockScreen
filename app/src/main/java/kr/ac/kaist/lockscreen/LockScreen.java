@@ -27,12 +27,15 @@ public class LockScreen extends AppCompatActivity {
     protected SharedPreferences.Editor editor = null;
     protected SharedPreferences pref_count = null;
     protected SharedPreferences.Editor editor_count = null;
+    protected SharedPreferences pref_flag = null;
+    protected SharedPreferences.Editor editor_flag = null;
     protected Thread myThread=null;
     static Handler handler;
     TextView timer;
     boolean isService = false; // 서비스 중인 확인용
     boolean isStop = false;
     CountService myService;
+
     ServiceConnection conn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -73,20 +76,17 @@ public class LockScreen extends AppCompatActivity {
         pref_count = getSharedPreferences("Count", Activity.MODE_PRIVATE);
         editor_count = pref_count.edit();
 
+        pref_flag = getSharedPreferences("Flag", Activity.MODE_PRIVATE);
+        editor_flag = pref_flag.edit();
+
         homeButton.setOnClickListener(new View.OnClickListener() {
                                           @Override
                                           public void onClick(View v) {
                                               //Toast.makeText(getApplicationContext(), "홈화면으로 이동", Toast.LENGTH_LONG).show();
-
-                                              if (!isService) {
-                                                  stopService(intentService);
-                                              } else {
-                                                  unbindService(conn);
-                                              }
-                                              //bindService(intentService, conn, BIND_AUTO_CREATE);
+                                              stopService(intentService);
                                               startService(intentService);
-
-                                              //Log.i("서비스 실행 중?1: ",String.valueOf(isServiceRunningCheck()));
+                                              editor.putInt("FocusMode",0);
+                                              editor.commit();
 
                                               //홈화면으로 이동
                                               Intent intent = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
@@ -139,28 +139,6 @@ public class LockScreen extends AppCompatActivity {
         isStop = true;
         Log.i("resume", "굿굿");
 
-        /*
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        while (isServiceRunningCheck()) {
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            Log.i("쓰레드 동작","굿굿");
-                        }
-                    }
-                });
-            }
-        });
-        thread.start();
-        */
-
     }
 
     //뒤로가기 키 막기
@@ -190,8 +168,11 @@ public class LockScreen extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        editor_flag.putInt("Flag",1);
+        editor_flag.commit();
         isStop = false;
         myThread.interrupt();
+
     }
 
     public boolean isServiceRunningCheck(){
@@ -226,24 +207,6 @@ public class LockScreen extends AppCompatActivity {
             timer.setText(String.valueOf(hour)+"시간"+String.valueOf(min)+"분 "+String.valueOf(sec)+"초");
         }
     }
-
-
-    /*
-    static Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg){
-            if(msg.what == 0){
-                try{
-                    if(isService) {
-                        timer.setText("Time:" + String.valueOf(myService.getCount()));
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        }
-    };
-    */
 }
 
 

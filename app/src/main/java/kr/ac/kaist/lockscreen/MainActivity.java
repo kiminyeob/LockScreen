@@ -13,19 +13,40 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 public class MainActivity extends Activity {
     boolean isService = false; // 서비스 중인 확인용
+    protected SharedPreferences pref_duration = null;
+    protected SharedPreferences.Editor editor_duration = null;
+    protected SharedPreferences pref_flag = null;
+    protected SharedPreferences.Editor editor_flag = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button button = (Button)findViewById(R.id.resetButton);
+        Button button = (Button)findViewById(R.id.resetButton2);
+        Button button_confirm = (Button)findViewById(R.id.confirm);
+        final TextView textView = (TextView)findViewById(R.id.input_sec);
+
+        pref_duration = getSharedPreferences("Duration", Activity.MODE_PRIVATE);
+        editor_duration = pref_duration.edit();
+
+        pref_flag = getSharedPreferences("Flag", Activity.MODE_PRIVATE);
+        editor_flag = pref_flag.edit();
+
+        int set_duration = pref_duration.getInt("Duration",-1);
+        textView.setText(String.valueOf(set_duration));
+
+        final Intent intentService = new Intent(this, CountService.class);
 
         /* //지워도 됨
         Intent intent = new Intent(this, ScreenService.class);
@@ -48,6 +69,24 @@ public class MainActivity extends Activity {
                 startService(intent);
             }
         });
+
+        button_confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    int duration = Integer.parseInt(textView.getText().toString());
+                    editor_duration.putInt("Duration", duration);
+                    editor_duration.commit();
+                    Log.i("결과", String.valueOf(duration));
+
+                    stopService(intentService);
+                    startService(intentService);
+                } catch (Exception e)
+                {
+                    Toast.makeText(getApplicationContext(), "올바른 값을 입력해 주세요(1이상 자연수)", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     @Override
@@ -58,6 +97,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        editor_flag.putInt("Flag",0);
+        editor_flag.commit();
+        Log.i("Main Activity:",String.valueOf(pref_flag.getInt("Flag",-1)));
     }
 
     @Override

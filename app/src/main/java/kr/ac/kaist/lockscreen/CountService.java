@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -18,9 +19,11 @@ public class CountService extends Service {
     protected SharedPreferences.Editor editor =null;
     protected SharedPreferences pref_count =null;
     protected SharedPreferences.Editor editor_count =null;
+    protected SharedPreferences pref_duration = null;
+    protected SharedPreferences.Editor editor_duration = null;
     private BroadcastReceiver mReceiver;
     protected boolean isStop=  false;
-    protected int trigger_duration_in_second = 5;
+    protected int trigger_duration_in_second;
     public int count = 0;
     //public int Aftercount = 0;
 
@@ -41,6 +44,7 @@ public class CountService extends Service {
         super.onCreate();
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
+        filter.addAction("android.intent.action.SCREEN_OFF");
         mReceiver = new ScreenReceiver();
         registerReceiver(mReceiver, filter);
 
@@ -50,10 +54,16 @@ public class CountService extends Service {
         pref_count = getSharedPreferences("Count", Activity.MODE_PRIVATE);
         editor_count = pref_count.edit();
 
+        pref_duration = getSharedPreferences("Duration", Activity.MODE_PRIVATE);
+        trigger_duration_in_second = pref_duration.getInt("Duration",-1);
+
         //카운터 시작
         isStop = false;
         Thread counter = new Thread(new Counter());
         counter.start();
+
+        Log.i("test", "서비스 시작");
+
     }
 
     @Override
