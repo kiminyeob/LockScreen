@@ -33,7 +33,7 @@ public class ScreenReceiver extends BroadcastReceiver {
 
             Log.i("information","스마트폰 화면이 꺼짐" + String.valueOf(flag));
 
-            if (flag != 1) { // 만약에 잠금 화면에서 화면이 꺼진 것이라면 reset하지 않는다.
+            if (flag != 1 || focus == 0) { // 만약에 잠금 화면에서 화면이 꺼진 것이라면 reset하지 않는다. 그리고 timer가 trigger되지 않았으면.
                 final Intent intentService = new Intent(context, CountService.class);
                 editor_flag.putInt("Flag",0);
                 editor_flag.commit();

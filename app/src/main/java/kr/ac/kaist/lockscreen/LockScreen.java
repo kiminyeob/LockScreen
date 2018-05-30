@@ -2,6 +2,7 @@ package kr.ac.kaist.lockscreen;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -79,6 +81,8 @@ public class LockScreen extends AppCompatActivity {
         pref_flag = getSharedPreferences("Flag", Activity.MODE_PRIVATE);
         editor_flag = pref_flag.edit();
 
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
         homeButton.setOnClickListener(new View.OnClickListener() {
                                           @Override
                                           public void onClick(View v) {
@@ -106,11 +110,19 @@ public class LockScreen extends AppCompatActivity {
                                              //startService(intentService);
 
                                              //ESM 받는 것 구현하기
+                                             /*
                                              Toast.makeText(getApplicationContext(), String.valueOf(count), Toast.LENGTH_LONG).show();
                                              Intent intent = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
                                              intent.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
                                              intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
                                              startActivity(intent);
+                                             */
+                                             LayoutInflater inflater = getLayoutInflater();
+                                             final View dialogView = inflater.inflate(R.layout.custom_dialog,null);
+                                             builder.setView(dialogView);
+                                             AlertDialog dialog=builder.create();
+                                             dialog.setCanceledOnTouchOutside(true);
+                                             dialog.show();
                                          }
                                      }
         );
