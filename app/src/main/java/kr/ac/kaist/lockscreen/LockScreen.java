@@ -47,6 +47,7 @@ public class LockScreen extends AppCompatActivity {
     boolean isStop = false;
     CountService myService;
 
+    /*
     ServiceConnection conn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -60,6 +61,7 @@ public class LockScreen extends AppCompatActivity {
             isService = false;
         }
     };
+    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,13 +147,13 @@ public class LockScreen extends AppCompatActivity {
         super.onResume();
         isStop = true;
 
-        Log.i("resume", "굿굿");
+        //Log.i("resume", "굿굿");
     }
 
     @Override
     public void onStop(){
         super.onStop();
-        Log.i("onStop", "onStop");
+        //Log.i("onStop", "onStop");
 
         editor_flag.putInt("Flag",1);
         editor_flag.commit();
@@ -169,7 +171,7 @@ public class LockScreen extends AppCompatActivity {
     @Override
     protected void onStart(){
         super.onStart();
-        Log.i("onStart", "onStart");
+        //Log.i("onStart", "onStart");
         myThread = new Thread(new Runnable() {
             @Override
             public void run() {

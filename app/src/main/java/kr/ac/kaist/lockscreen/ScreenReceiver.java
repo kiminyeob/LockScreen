@@ -61,9 +61,11 @@ public class ScreenReceiver extends BroadcastReceiver {
             */
         }
 
-        if (intent.getAction().equals("kr.ac.kaist.lockscreen.TIMER_FINISHED") && focus == 1) {
-            Log.i("information","타이머 종료");
-
+        if (intent.getAction().equals("kr.ac.kaist.lockscreen.shake")) {
+            Log.i("Shake","움직임을 잘 받았다.");
+            final Intent intentService = new Intent(context, CountService.class);
+            context.stopService(intentService);
+            context.startService(intentService);
             /*
             Intent i = new Intent(context,LockScreen.class);
             i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -71,6 +73,10 @@ public class ScreenReceiver extends BroadcastReceiver {
 
             context.startActivity(i);
             */
+            Intent intent_home = new Intent(intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
+            intent_home.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
+            intent_home.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
+            context.startActivity(intent_home);
         }
 
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {

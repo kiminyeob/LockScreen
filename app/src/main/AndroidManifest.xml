@@ -29,15 +29,10 @@
             android:enabled="true"
             android:exported="false">
             <intent-filter>
-                <action android:name="kr.ac.kaist.lockscreen.TIMER_FINISHED"/>
+                <action android:name="kr.ac.kaist.lockscreen.shake"/>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-
-        <service
-            android:name=".ScreenService"
-            android:enabled="true"
-            android:exported="true" />
 
         <activity
             android:name=".LockScreen"

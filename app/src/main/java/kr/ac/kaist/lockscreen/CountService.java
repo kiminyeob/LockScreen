@@ -4,15 +4,21 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-public class CountService extends Service {
+public class CountService extends Service implements SensorEventListener {
     protected SharedPreferences pref=null;
     protected SharedPreferences.Editor editor =null;
     protected SharedPreferences pref_count =null;
@@ -23,12 +29,23 @@ public class CountService extends Service {
     protected SharedPreferences.Editor editor_startService =null;
     protected SharedPreferences pref_other=null;
     protected SharedPreferences.Editor editor_other =null;
+    protected SharedPreferences pref_shake =null;
+    protected SharedPreferences.Editor editor_shake =null;
 
     protected boolean isStop=  false;
     protected int trigger_duration_in_second;
+    protected boolean shake_flag;
+    protected int shake_time = 0;
     public int count = 0;
     //public int Aftercount = 0;
 
+    private SensorManager mSensorManager;
+    private Sensor mAccelerometer;
+    private float mAccel; // acceleration apart from gravity
+    private float mAccelCurrent; // current acceleration including gravity
+    private float mAccelLast; // last acceleration including gravity
+
+    /*
     private final IBinder mBinder = new LocalBinder();
 
     class LocalBinder extends Binder {
@@ -36,6 +53,7 @@ public class CountService extends Service {
             return CountService.this;
         }
     }
+    */
 
     public CountService() {
     }
@@ -49,8 +67,10 @@ public class CountService extends Service {
         filter.addAction("android.intent.action.SCREEN_OFF");
         mReceiver = new ScreenReceiver();
         registerReceiver(mReceiver, filter);
+        shake_time = (int)(System.currentTimeMillis()/1000);
+        shake_flag = true;
 
-        Log.i("test", "서비스 시작");
+        //Log.i("test", "서비스 시작");
 
         pref = getSharedPreferences("FocusMode", Activity.MODE_PRIVATE);
         editor = pref.edit();
@@ -67,11 +87,17 @@ public class CountService extends Service {
         pref_other = getSharedPreferences("OtherApp", Activity.MODE_PRIVATE); //다른 앱(홈화면 포함) 실행 중인가?
         editor_other = pref_other.edit();
 
+        pref_shake = getSharedPreferences("Shake", Activity.MODE_PRIVATE);
+        editor_shake = pref_shake.edit();
+
         editor_startService.putInt("StartService",(int)(System.currentTimeMillis()/1000));
         editor_startService.commit();
 
-        Log.i("current: ", String.valueOf((int)(System.currentTimeMillis()/1000)));
-        Log.i("startService: ", String.valueOf(pref_startService.getInt("StartService",-1)));
+        editor_shake.putInt("Shake",0);
+        editor_shake.commit();
+
+        //Log.i("current: ", String.valueOf((int)(System.currentTimeMillis()/1000)));
+        //Log.i("startService: ", String.valueOf(pref_startService.getInt("StartService",-1)));
 
         //카운터 시작
         isStop = false;
@@ -82,13 +108,19 @@ public class CountService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
-        //throw new UnsupportedOperationException("Not yet implemented");
-        return mBinder;
+        throw new UnsupportedOperationException("Not yet implemented");
+        //return mBinder;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
         super.onStartCommand(intent, flags, startId);
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mAccelerometer = mSensorManager
+                .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mSensorManager.registerListener(this, mAccelerometer,
+                SensorManager.SENSOR_DELAY_UI, new Handler());
 
         //노티바 고정 띄우기
         Notification notiEx = new NotificationCompat.Builder(CountService.this)
@@ -106,15 +138,37 @@ public class CountService extends Service {
             mReceiver = new ScreenReceiver();
             registerReceiver(mReceiver, filter);
         }
-
         return START_REDELIVER_INTENT;
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy){}
+
+    @Override
+    public void onSensorChanged(SensorEvent event){
+        float x = event.values[0];
+        float y = event.values[1];
+        float z = event.values[2];
+        mAccelLast = mAccelCurrent;
+        mAccelCurrent = (float) Math.sqrt((double)(x*x+y*y+z*z));
+        float delta = mAccelCurrent - mAccelLast;
+        mAccel = mAccel * 0.9f+delta;
+
+
+        if(mAccel > 10 && pref_shake.getInt("Shake",-1) == 1){
+            editor_shake.putInt("Shake",0);
+            editor_shake.commit();
+            shake_time = (int)(System.currentTimeMillis()/1000);
+            sendBroadcast(new Intent("kr.ac.kaist.lockscreen.shake"));
+        }
     }
 
     @Override
     public void onDestroy(){
         super.onDestroy();
-        Log.i("test", "서비스 종료");
+        //Log.i("test", "서비스 종료");
         isStop = true;
+        shake_flag = false;
         unregisterReceiver(mReceiver);
     }
 
@@ -125,10 +179,11 @@ public class CountService extends Service {
         public void run() {
             int serviceStart_time = pref_startService.getInt("StartService",-1);
 
-            Log.i("startService2: ", String.valueOf(serviceStart_time));
+            //Log.i("startService2: ", String.valueOf(serviceStart_time));
 
             editor_count.putInt("Count",0);
             editor_count.commit();
+
             while(!isStop){
 
                 int currentTime = (int)(System.currentTimeMillis()/1000);
@@ -139,9 +194,23 @@ public class CountService extends Service {
                     e.printStackTrace();
                 }
 
+                /*
                 Log.i("test", "currentTime: "+String.valueOf(currentTime)+
                         " serviceStart: "+String.valueOf(serviceStart_time)+
                         " duration:" + String.valueOf(trigger_duration_in_second) + " Difference: "+String.valueOf(currentTime-serviceStart_time));
+                */
+
+                /*
+                Log.i("시간 비교","Current:"+String.valueOf((currentTime))+","+
+                        "Shake:"+String.valueOf(shake_time)+
+                        ",difference:"+String.valueOf(currentTime-shake_time)+",:"+String.valueOf(pref_shake.getInt("Shake",-1)));
+                */
+
+                if ((currentTime-shake_time) > 5){
+                    editor_shake.putInt("Shake",1);
+                    editor_shake.commit();
+                }
+
 
                 if ((currentTime - serviceStart_time) > trigger_duration_in_second) {
                     if (pref.getInt("FocusMode", -1) != 1) {
@@ -149,16 +218,16 @@ public class CountService extends Service {
                         editor.commit();
                         editor_count.putInt("Count", (int) System.currentTimeMillis() / 1000);
                         editor_count.commit();
-                        Log.i("information", "포커스 모드가 시작되었습니다.");
+//                        Log.i("information", "포커스 모드가 시작되었습니다.");
                     }
                 }
                 else {
                     editor.putInt("FocusMode", 0);
                     editor.commit();
-                    Log.i("information", "포커스 모드가 아닙니다.");
+                    //Log.i("information", "포커스 모드가 아닙니다.");
                 }
             }
-            Log.i("test", "while 끝남");
+            //Log.i("test", "while 끝남");
         }
     }
 }

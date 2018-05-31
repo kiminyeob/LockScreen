@@ -18,6 +18,8 @@ public class MainActivity extends Activity {
     protected SharedPreferences.Editor editor_flag = null;
     protected SharedPreferences pref_other=null;
     protected SharedPreferences.Editor editor_other =null;
+    protected SharedPreferences pref_shake =null;
+    protected SharedPreferences.Editor editor_shake =null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +38,10 @@ public class MainActivity extends Activity {
 
         pref_other = getSharedPreferences("OtherApp", Activity.MODE_PRIVATE); //다른 앱(홈화면 포함) 실행 중인가?
         editor_other = pref_other.edit();
+
+        pref_shake = getSharedPreferences("Shake", Activity.MODE_PRIVATE);
+        editor_shake = pref_shake.edit();
+
 
         int set_duration = pref_duration.getInt("Duration",-1);
         textView.setText(String.valueOf(set_duration));
@@ -75,6 +81,9 @@ public class MainActivity extends Activity {
         editor_other.putInt("OtherApp",0);
         editor_other.commit();
 
+        editor_shake.putInt("Shake",1);
+        editor_shake.commit();
+
     }
 
     @Override
@@ -87,7 +96,7 @@ public class MainActivity extends Activity {
         super.onPause();
         editor_flag.putInt("Flag",0);
         editor_flag.commit();
-        Log.i("Main Activity:",String.valueOf(pref_flag.getInt("Flag",-1)));
+        //Log.i("Main Activity:",String.valueOf(pref_flag.getInt("Flag",-1)));
     }
 
     @Override
