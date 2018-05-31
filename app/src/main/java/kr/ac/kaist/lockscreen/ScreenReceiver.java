@@ -41,10 +41,6 @@ public class ScreenReceiver extends BroadcastReceiver {
                 context.startService(intentService);
             }
 
-
-
-
-
             /*
             Intent i = new Intent(context,LockScreen.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // activity에서 startActivity를 하는게 아니기 때문에 넣어야 한다(안넣으면 에러남)

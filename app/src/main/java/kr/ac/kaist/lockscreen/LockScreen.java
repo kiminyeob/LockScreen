@@ -11,7 +11,6 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -70,8 +69,6 @@ public class LockScreen extends AppCompatActivity {
         //서비스
         final Intent intentService = new Intent(this, CountService.class);
 
-        //Toast.makeText(getApplicationContext(), "최초생성", Toast.LENGTH_LONG).show();
-
         pref = getSharedPreferences("FocusMode", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
@@ -106,17 +103,7 @@ public class LockScreen extends AppCompatActivity {
                                          public void onClick(View v) {
                                              SharedPreferences pref_count= getSharedPreferences("Count", Context.MODE_PRIVATE);
                                              int count = pref_count.getInt("Count",-1);
-                                             //stopService(intentService);
-                                             //startService(intentService);
 
-                                             //ESM 받는 것 구현하기
-                                             /*
-                                             Toast.makeText(getApplicationContext(), String.valueOf(count), Toast.LENGTH_LONG).show();
-                                             Intent intent = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
-                                             intent.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
-                                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
-                                             startActivity(intent);
-                                             */
                                              LayoutInflater inflater = getLayoutInflater();
                                              final View dialogView = inflater.inflate(R.layout.custom_dialog,null);
                                              builder.setView(dialogView);
@@ -131,11 +118,6 @@ public class LockScreen extends AppCompatActivity {
         //FLAG_SHOW_WHEN_LOCKED 는 안드로이드 기본 잠금화면 보다 위에 이 activity 띄워라라고 시키는 것
         //FLAG_DISMISS_KEYGUARD 는 안드로이드 기본 잠금화면을 없애라라고 시키는 것
 
-        /*
-        MyThread thread = new MyThread();
-        thread.setDaemon(true);
-        thread.start();
-        */
 
         handler = new Handler(){
             @Override
