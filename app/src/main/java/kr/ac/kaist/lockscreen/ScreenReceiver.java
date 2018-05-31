@@ -12,11 +12,16 @@ import android.util.Log;
 
 public class ScreenReceiver extends BroadcastReceiver {
     protected SharedPreferences.Editor editor =null;
+    protected SharedPreferences pref_other=null;
+    protected SharedPreferences.Editor editor_other =null;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences pref= context.getSharedPreferences("FocusMode",Context.MODE_PRIVATE);
         int focus = pref.getInt("FocusMode",-1);
+
+        //pref_other = context.getSharedPreferences("OtherApp", Activity.MODE_PRIVATE); //다른 앱(홈화면 포함) 실행 중인가?
+        //editor_other = pref_other.edit();
 
 
         if (intent.getAction().equals(intent.ACTION_SCREEN_ON) && focus == 1){
@@ -28,8 +33,10 @@ public class ScreenReceiver extends BroadcastReceiver {
 
         if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
             SharedPreferences pref_flag = context.getSharedPreferences("Flag",Context.MODE_PRIVATE);
+            //SharedPreferences pref_other = context.getSharedPreferences("OtherApp",Context.MODE_PRIVATE);
             SharedPreferences.Editor editor_flag = pref_flag.edit();
             int flag = pref_flag.getInt("Flag",-1);
+            //int otherApp = pref_other.getInt("OtherApp",-1);
 
             Log.i("information","스마트폰 화면이 꺼짐" + String.valueOf(flag));
 
@@ -42,9 +49,15 @@ public class ScreenReceiver extends BroadcastReceiver {
             }
 
             /*
-            Intent i = new Intent(context,LockScreen.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // activity에서 startActivity를 하는게 아니기 때문에 넣어야 한다(안넣으면 에러남)
-            context.startActivity(i);
+            if(otherApp == 1 && focus == 0){
+                final Intent intentService = new Intent(context, CountService.class);
+                editor_flag.putInt("Flag",0);
+                editor_flag.commit();
+                context.stopService(intentService);
+                context.startService(intentService);
+            }
+            editor_other.putInt("OtherApp",0);
+            editor_other.commit();
             */
         }
 

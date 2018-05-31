@@ -16,6 +16,8 @@ public class MainActivity extends Activity {
     protected SharedPreferences.Editor editor_duration = null;
     protected SharedPreferences pref_flag = null;
     protected SharedPreferences.Editor editor_flag = null;
+    protected SharedPreferences pref_other=null;
+    protected SharedPreferences.Editor editor_other =null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +33,9 @@ public class MainActivity extends Activity {
 
         pref_flag = getSharedPreferences("Flag", Activity.MODE_PRIVATE);
         editor_flag = pref_flag.edit();
+
+        pref_other = getSharedPreferences("OtherApp", Activity.MODE_PRIVATE); //다른 앱(홈화면 포함) 실행 중인가?
+        editor_other = pref_other.edit();
 
         int set_duration = pref_duration.getInt("Duration",-1);
         textView.setText(String.valueOf(set_duration));
@@ -66,6 +71,10 @@ public class MainActivity extends Activity {
                 }
             }
         });
+
+        editor_other.putInt("OtherApp",0);
+        editor_other.commit();
+
     }
 
     @Override
