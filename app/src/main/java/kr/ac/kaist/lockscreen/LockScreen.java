@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.PowerManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -208,7 +209,11 @@ public class LockScreen extends AppCompatActivity {
             timer.setText(String.valueOf(hour)+"시간"+String.valueOf(min)+"분 "+String.valueOf(sec)+"초");
         }
         */
-        timer.setText(String.valueOf(difference_time));
+        if (difference_time > 0){
+            timer.setText(String.valueOf(difference_time));
+        } else {
+            timer.setText("잠금 종료!");
+        }
     }
 }
 
