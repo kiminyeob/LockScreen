@@ -23,6 +23,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class LockScreen extends AppCompatActivity {
     protected SharedPreferences pref = null;
     protected SharedPreferences.Editor editor = null;
@@ -182,11 +186,14 @@ public class LockScreen extends AppCompatActivity {
     private void updateThread()
     {
         SharedPreferences pref_count= getSharedPreferences("Count", Context.MODE_PRIVATE);
-        int count = pref_count.getInt("Count",-1);
+        int previous_time = pref_count.getInt("Count",-1); //Focus Mode가 1이 된 순간
+        int current_time = (int)System.currentTimeMillis()/1000;
+        int difference_time = current_time - previous_time;
         int hour = 0;
         int min = 0;
         int sec = 0;
 
+        /*
         if (count < 60){
             sec = count;
             timer.setText(String.valueOf(sec)+"초");
@@ -200,6 +207,8 @@ public class LockScreen extends AppCompatActivity {
             sec = count % 60;
             timer.setText(String.valueOf(hour)+"시간"+String.valueOf(min)+"분 "+String.valueOf(sec)+"초");
         }
+        */
+        timer.setText(String.valueOf(difference_time));
     }
 }
 

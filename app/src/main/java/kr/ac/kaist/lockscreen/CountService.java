@@ -115,8 +115,12 @@ public class CountService extends Service {
                 if(count > trigger_duration_in_second){
                     try{
                         Thread.sleep(1000);
-                        editor.putInt("FocusMode",1);
-                        editor.commit();
+                        if(pref.getInt("FocusMode",-1) != 1) {
+                            editor.putInt("FocusMode", 1);
+                            editor.commit();
+                            editor_count.putInt("Count",(int)System.currentTimeMillis()/1000);
+                            editor_count.commit();
+                        }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -130,10 +134,6 @@ public class CountService extends Service {
                         e.printStackTrace();
                     }
                 }
-
-                editor_count.putInt("Count",count-trigger_duration_in_second);
-                editor_count.commit();
-
             }
             Log.i("test", "Thread finished counter is at " + String.valueOf(count));
         }
