@@ -160,7 +160,7 @@ public class CountService extends Service implements SensorEventListener {
         mAccel = mAccel * 0.9f+delta;
 
 
-        if(mAccel > 6 && pref_shake.getInt("Shake",-1) == 1 && pref_typing.getInt("Typing",-1) == 0){
+        if(mAccel > 11 && pref_shake.getInt("Shake",-1) == 1 && pref_typing.getInt("Typing",-1) == 0){
             editor_shake.putInt("Shake",0);
             editor_shake.commit();
             shake_time = (int)(System.currentTimeMillis()/1000);

@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
@@ -54,6 +55,8 @@ public class LockScreen extends AppCompatActivity {
     CountService myService;
     AlertDialog dialog;
     boolean ratio_flag = false;
+    protected int difference_time;
+    String isFocusing = "-1";
 
     /*
     ServiceConnection conn = new ServiceConnection() {
@@ -76,7 +79,11 @@ public class LockScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lock_screen);
 
+        final DBHelper dbHelper = new DBHelper(LockScreen.this, "data.db",null,1);
+        dbHelper.testDB();
+
         timer = (TextView) findViewById(R.id.timer);
+        isFocusing = "-1";
 
         Window win = getWindow();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -131,14 +138,17 @@ public class LockScreen extends AppCompatActivity {
                     final EditText answer = (EditText) dialogView.findViewById(R.id.answer);
                     final TextView question = (TextView) dialogView.findViewById(R.id.question);
                     final RadioGroup rg = (RadioGroup) dialogView.findViewById(R.id.radioGroup);
+
                     rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                         @Override
                         public void onCheckedChanged(RadioGroup group, int checkedId) {
                             if(checkedId == R.id.ratio_yes){
                                 question.setText("스마트폰을 어떤 용도로 사용할 예정입니까?");
+                                isFocusing = "y";
                             }
                             if(checkedId == R.id.ratio_no){
                                 question.setText("지금은 어떤 상황인가요?");
+                                isFocusing = "n";
                             }
                         }
                     });
@@ -150,25 +160,35 @@ public class LockScreen extends AppCompatActivity {
                     builder.setPositiveButton("확인",new DialogInterface.OnClickListener(){
                         @Override
                         public void onClick(DialogInterface dialog, int id){
-                        /*
-                        여기에 저장하는 Logic을 넣어야 함
-                         */
+                        boolean success;
+                        boolean success2;
+                        // tag: 1은 해제를 하는 순간...
+                        success = dbHelper.insertData(String.valueOf(System.currentTimeMillis()), isFocusing, "1",answer.getText().toString(), String.valueOf(difference_time));
+                        success2 = dbHelper.insertData(String.valueOf(System.currentTimeMillis()),"y", String.valueOf(difference_time));
+                        isFocusing = "-1";
+
+                        if(success && success2) {
                             Toast.makeText(getApplicationContext(), "저장되었습니다. 감사합니다:)", Toast.LENGTH_SHORT).show();
-                            //Toast.makeText(getApplicationContext(), answer.getText().toString(), Toast.LENGTH_LONG).show();
-                            editor_typing.putInt("Typing", 0);
-                            editor_typing.commit();
-                            stopService(intentService);
-                            startService(intentService);
-                            startActivity(intent);
-                            editor.putInt("FocusMode", 0);
-                            editor.commit();
-                            dialog.cancel();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "저장 중 문제가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                        }
+
+                        editor_typing.putInt("Typing", 0);
+                        editor_typing.commit();
+                        stopService(intentService);
+                        startService(intentService);
+                        startActivity(intent);
+                        editor.putInt("FocusMode", 0);
+                        editor.commit();
+                        dialog.cancel();
                         }
                     });
                     //직접 잠금 해제 --> 나중에
                     builder.setNegativeButton("나중에",new DialogInterface.OnClickListener(){
                         @Override
                         public void onClick(DialogInterface dialog, int id){
+                            dbHelper.insertData(String.valueOf(System.currentTimeMillis()),"n", String.valueOf(difference_time));
+
                             editor_typing.putInt("Typing", 0);
                             editor_typing.commit();
                             stopService(intentService);
@@ -213,9 +233,12 @@ public class LockScreen extends AppCompatActivity {
                     public void onCheckedChanged(RadioGroup group, int checkedId) {
                         if(checkedId == R.id.ratio_yes){
                             question.setText("현재 상황을 입력해 주세요");
+                            isFocusing = "y";
                         }
                         if(checkedId == R.id.ratio_no){
                             question.setText("지금은 어떤 상황인가요?");
+                            isFocusing = "n";
+
                         }
                     }
                 });
@@ -225,16 +248,27 @@ public class LockScreen extends AppCompatActivity {
                 builder.setPositiveButton("확인",new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialog, int id){
+                        boolean success;
+                        // tag: 2는 락스크린 중...
+                        success = dbHelper.insertData(String.valueOf(System.currentTimeMillis()), isFocusing, "2",answer.getText().toString(), String.valueOf(difference_time));
+                        //dbHelper.insertData(String.valueOf(System.currentTimeMillis()),"y", String.valueOf(difference_time));
+
                         /*
-                        여기에 저장하는 Logic을 넣어야 함
-                         */
                         if (rg.getCheckedRadioButtonId() == R.id.ratio_yes) {
                             Log.i("button", "YES");
                             } else if (rg.getCheckedRadioButtonId() == R.id.ratio_no) {
                             Log.i("button", "NO");
                         }
-                        Toast.makeText(getApplicationContext(), "저장되었습니다. 감사합니다:)", Toast.LENGTH_SHORT).show();
-                        //Toast.makeText(getApplicationContext(), answer.getText().toString(), Toast.LENGTH_LONG).show();
+                        */
+
+                        if(success){
+                            Toast.makeText(getApplicationContext(), "저장되었습니다. 감사합니다:)", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            Toast.makeText(getApplicationContext(), "저장 중 문제가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                        }
+                        isFocusing = "-1";
+
                         editor_typing.putInt("Typing", 0);
                         editor_typing.commit();
                            ratio_flag = false;
@@ -244,6 +278,7 @@ public class LockScreen extends AppCompatActivity {
                 builder.setNegativeButton("나중에",new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialog, int id){
+
                         editor_typing.putInt("Typing", 0);
                         editor_typing.commit();
                         dialog.cancel();
@@ -334,7 +369,7 @@ public class LockScreen extends AppCompatActivity {
         SharedPreferences pref_count= getSharedPreferences("Count", Context.MODE_PRIVATE);
         int previous_time = pref_count.getInt("Count",-1); //Focus Mode가 1이 된 순간
         int current_time = (int)System.currentTimeMillis()/1000;
-        int difference_time = current_time - previous_time;
+        difference_time = current_time - previous_time;
 
         int hour = 0;
         int min = 0;
