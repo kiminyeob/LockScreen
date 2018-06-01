@@ -31,6 +31,8 @@ public class CountService extends Service implements SensorEventListener {
     protected SharedPreferences.Editor editor_other =null;
     protected SharedPreferences pref_shake =null;
     protected SharedPreferences.Editor editor_shake =null;
+    protected SharedPreferences pref_typing=null;
+    protected SharedPreferences.Editor editor_typing =null;
 
     protected boolean isStop=  false;
     protected int trigger_duration_in_second;
@@ -80,6 +82,9 @@ public class CountService extends Service implements SensorEventListener {
 
         pref_duration = getSharedPreferences("Duration", Activity.MODE_PRIVATE);
         trigger_duration_in_second = pref_duration.getInt("Duration",-1);
+
+        pref_typing = getSharedPreferences("Typing", Activity.MODE_PRIVATE);
+        editor_typing = pref_typing.edit();
 
         pref_startService = getSharedPreferences("StartService", Activity.MODE_PRIVATE);
         editor_startService = pref_startService.edit();
@@ -155,7 +160,7 @@ public class CountService extends Service implements SensorEventListener {
         mAccel = mAccel * 0.9f+delta;
 
 
-        if(mAccel > 6 && pref_shake.getInt("Shake",-1) == 1){
+        if(mAccel > 6 && pref_shake.getInt("Shake",-1) == 1 && pref_typing.getInt("Typing",-1) == 0){
             editor_shake.putInt("Shake",0);
             editor_shake.commit();
             shake_time = (int)(System.currentTimeMillis()/1000);

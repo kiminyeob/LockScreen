@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +41,8 @@ public class LockScreen extends AppCompatActivity {
     protected SharedPreferences.Editor editor_startService =null;
     protected SharedPreferences pref_other=null;
     protected SharedPreferences.Editor editor_other =null;
+    protected SharedPreferences pref_typing=null;
+    protected SharedPreferences.Editor editor_typing =null;
 
     protected Thread myThread=null;
     static Handler handler;
@@ -98,7 +101,8 @@ public class LockScreen extends AppCompatActivity {
         pref_other = getSharedPreferences("OtherApp", Activity.MODE_PRIVATE); //다른 앱(홈화면 포함) 실행 중인가?
         editor_other = pref_other.edit();
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        pref_typing = getSharedPreferences("Typing", Activity.MODE_PRIVATE);
+        editor_typing = pref_typing.edit();
 
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,26 +124,41 @@ public class LockScreen extends AppCompatActivity {
         esmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                editor_typing.putInt("Typing", 1);
+                editor_typing.commit();
                 SharedPreferences pref_count= getSharedPreferences("Count", Context.MODE_PRIVATE);
                 int count = pref_count.getInt("Count",-1);
 
+                //사용자 입력 UI정의
                 LayoutInflater inflater = getLayoutInflater();
                 final View dialogView = inflater.inflate(R.layout.custom_dialog,null);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(LockScreen.this);
+                final EditText answer = (EditText) dialogView.findViewById(R.id.answer);
+
                 builder.setView(dialogView);
                 builder.setPositiveButton("확인",new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialog, int id){
+                        /*
+                        여기에 저장하는 Logic을 넣어야 함
+                         */
+                        Toast.makeText(getApplicationContext(), "저장되었습니다. 감사합니다:)", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getApplicationContext(), answer.getText().toString(), Toast.LENGTH_LONG).show();
+                        editor_typing.putInt("Typing", 0);
+                        editor_typing.commit();
                         dialog.cancel();
                     }
                 });
                 builder.setNegativeButton("나중에",new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialog, int id){
+                        editor_typing.putInt("Typing", 0);
+                        editor_typing.commit();
                         dialog.cancel();
                     }
                 });
                 dialog=builder.create();
-                dialog.setCanceledOnTouchOutside(true);
+                dialog.setCanceledOnTouchOutside(false);
                 dialog.show();
                 }}
         );
