@@ -5,6 +5,7 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -46,6 +47,7 @@ public class LockScreen extends AppCompatActivity {
     boolean isService = false; // 서비스 중인 확인용
     boolean isStop = false;
     CountService myService;
+    AlertDialog dialog;
 
     /*
     ServiceConnection conn = new ServiceConnection() {
@@ -96,7 +98,6 @@ public class LockScreen extends AppCompatActivity {
         pref_other = getSharedPreferences("OtherApp", Activity.MODE_PRIVATE); //다른 앱(홈화면 포함) 실행 중인가?
         editor_other = pref_other.edit();
 
-
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         homeButton.setOnClickListener(new View.OnClickListener() {
@@ -115,6 +116,7 @@ public class LockScreen extends AppCompatActivity {
                 startActivity(intent);
                 }
         });
+
         esmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,7 +126,19 @@ public class LockScreen extends AppCompatActivity {
                 LayoutInflater inflater = getLayoutInflater();
                 final View dialogView = inflater.inflate(R.layout.custom_dialog,null);
                 builder.setView(dialogView);
-                AlertDialog dialog=builder.create();
+                builder.setPositiveButton("확인",new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int id){
+                        dialog.cancel();
+                    }
+                });
+                builder.setNegativeButton("나중에",new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int id){
+                        dialog.cancel();
+                    }
+                });
+                dialog=builder.create();
                 dialog.setCanceledOnTouchOutside(true);
                 dialog.show();
                 }}
