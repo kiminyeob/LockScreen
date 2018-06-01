@@ -23,6 +23,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +53,7 @@ public class LockScreen extends AppCompatActivity {
     boolean isStop = false;
     CountService myService;
     AlertDialog dialog;
+    boolean ratio_flag = false;
 
     /*
     ServiceConnection conn = new ServiceConnection() {
@@ -127,8 +129,22 @@ public class LockScreen extends AppCompatActivity {
                     final View dialogView = inflater.inflate(R.layout.custom_dialog,null);
                     final AlertDialog.Builder builder = new AlertDialog.Builder(LockScreen.this);
                     final EditText answer = (EditText) dialogView.findViewById(R.id.answer);
+                    final TextView question = (TextView) dialogView.findViewById(R.id.question);
+                    final RadioGroup rg = (RadioGroup) dialogView.findViewById(R.id.radioGroup);
+                    rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(RadioGroup group, int checkedId) {
+                            if(checkedId == R.id.ratio_yes){
+                                question.setText("스마트폰을 어떤 용도로 사용할 예정입니까?");
+                            }
+                            if(checkedId == R.id.ratio_no){
+                                question.setText("지금은 어떤 상황인가요?");
+                            }
+                        }
+                    });
+
                     builder.setView(dialogView);
-                    builder.setTitle("상황을 입력해주세요");
+                    builder.setTitle("상황을 입력해주세요:)");
 
                     //직접 잠금 해제 --> 확인 버튼
                     builder.setPositiveButton("확인",new DialogInterface.OnClickListener(){
@@ -190,8 +206,21 @@ public class LockScreen extends AppCompatActivity {
                 final View dialogView = inflater.inflate(R.layout.custom_dialog,null);
                 final AlertDialog.Builder builder = new AlertDialog.Builder(LockScreen.this);
                 final EditText answer = (EditText) dialogView.findViewById(R.id.answer);
+                final RadioGroup rg = (RadioGroup) dialogView.findViewById(R.id.radioGroup);
+                final TextView question = (TextView) dialogView.findViewById(R.id.question);
+                rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId) {
+                        if(checkedId == R.id.ratio_yes){
+                            question.setText("현재 상황을 입력해 주세요");
+                        }
+                        if(checkedId == R.id.ratio_no){
+                            question.setText("지금은 어떤 상황인가요?");
+                        }
+                    }
+                });
                 builder.setView(dialogView);
-                builder.setTitle("상황을 입력해주세요");
+                builder.setTitle("상황을 입력해주세요:)");
 
                 builder.setPositiveButton("확인",new DialogInterface.OnClickListener(){
                     @Override
@@ -199,12 +228,18 @@ public class LockScreen extends AppCompatActivity {
                         /*
                         여기에 저장하는 Logic을 넣어야 함
                          */
+                        if (rg.getCheckedRadioButtonId() == R.id.ratio_yes) {
+                            Log.i("button", "YES");
+                            } else if (rg.getCheckedRadioButtonId() == R.id.ratio_no) {
+                            Log.i("button", "NO");
+                        }
                         Toast.makeText(getApplicationContext(), "저장되었습니다. 감사합니다:)", Toast.LENGTH_SHORT).show();
                         //Toast.makeText(getApplicationContext(), answer.getText().toString(), Toast.LENGTH_LONG).show();
                         editor_typing.putInt("Typing", 0);
                         editor_typing.commit();
-                        dialog.cancel();
-                    }
+                           ratio_flag = false;
+                           dialog.cancel();
+                        }
                 });
                 builder.setNegativeButton("나중에",new DialogInterface.OnClickListener(){
                     @Override
