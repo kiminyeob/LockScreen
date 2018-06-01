@@ -29,6 +29,7 @@ import android.widget.Toast;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
 
 public class LockScreen extends AppCompatActivity {
     protected SharedPreferences pref = null;
@@ -107,17 +108,72 @@ public class LockScreen extends AppCompatActivity {
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Toast.makeText(getApplicationContext(), "홈화면으로 이동", Toast.LENGTH_LONG).show();
-                //홈화면으로 이동
-                stopService(intentService);
-                startService(intentService);
-                editor.putInt("FocusMode", 0);
-                editor.commit();
+                Random random = new Random();
+                float percentage = random.nextFloat();
+                Log.i("확률",String.valueOf(percentage));
 
-                Intent intent = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
+                //홈화면으로 가는 intent
+                final Intent intent = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
                 intent.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
-                startActivity(intent);
+
+                //30%확률로 창이 뜸
+                if (percentage < 0.5){
+                    editor_typing.putInt("Typing", 1);
+                    editor_typing.commit();
+
+                    //사용자 입력 UI정의
+                    LayoutInflater inflater = getLayoutInflater();
+                    final View dialogView = inflater.inflate(R.layout.custom_dialog,null);
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(LockScreen.this);
+                    final EditText answer = (EditText) dialogView.findViewById(R.id.answer);
+                    builder.setView(dialogView);
+                    builder.setTitle("상황을 입력해주세요");
+
+                    //직접 잠금 해제 --> 확인 버튼
+                    builder.setPositiveButton("확인",new DialogInterface.OnClickListener(){
+                        @Override
+                        public void onClick(DialogInterface dialog, int id){
+                        /*
+                        여기에 저장하는 Logic을 넣어야 함
+                         */
+                            Toast.makeText(getApplicationContext(), "저장되었습니다. 감사합니다:)", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getApplicationContext(), answer.getText().toString(), Toast.LENGTH_LONG).show();
+                            editor_typing.putInt("Typing", 0);
+                            editor_typing.commit();
+                            stopService(intentService);
+                            startService(intentService);
+                            startActivity(intent);
+                            editor.putInt("FocusMode", 0);
+                            editor.commit();
+                            dialog.cancel();
+                        }
+                    });
+                    //직접 잠금 해제 --> 나중에
+                    builder.setNegativeButton("나중에",new DialogInterface.OnClickListener(){
+                        @Override
+                        public void onClick(DialogInterface dialog, int id){
+                            editor_typing.putInt("Typing", 0);
+                            editor_typing.commit();
+                            stopService(intentService);
+                            startService(intentService);
+                            startActivity(intent);
+                            editor.putInt("FocusMode", 0);
+                            editor.commit();
+                            dialog.cancel();
+                        }
+                    });
+                    dialog=builder.create();
+                    dialog.setCanceledOnTouchOutside(false);
+                    dialog.show();
+                }
+                else{
+                    stopService(intentService);
+                    startService(intentService);
+                    startActivity(intent);
+                    editor.putInt("FocusMode", 0);
+                    editor.commit();
+                }
                 }
         });
 
@@ -134,8 +190,9 @@ public class LockScreen extends AppCompatActivity {
                 final View dialogView = inflater.inflate(R.layout.custom_dialog,null);
                 final AlertDialog.Builder builder = new AlertDialog.Builder(LockScreen.this);
                 final EditText answer = (EditText) dialogView.findViewById(R.id.answer);
-
                 builder.setView(dialogView);
+                builder.setTitle("상황을 입력해주세요");
+
                 builder.setPositiveButton("확인",new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialog, int id){
