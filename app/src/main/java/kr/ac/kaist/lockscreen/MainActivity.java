@@ -8,9 +8,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.List;
 
 public class MainActivity extends Activity {
     protected SharedPreferences pref_duration = null;
@@ -21,18 +26,25 @@ public class MainActivity extends Activity {
     protected SharedPreferences.Editor editor_other =null;
     protected SharedPreferences pref_shake =null;
     protected SharedPreferences.Editor editor_shake =null;
+    protected ListView listView;
+    protected String[] results;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        DBHelper dbHelper = new DBHelper(MainActivity.this, "data.db",null,1);
+        final DBHelper dbHelper = new DBHelper(MainActivity.this, "data.db",null,1);
         dbHelper.testDB();
 
+        listView = (ListView)findViewById(R.id.listView);
         Button button = (Button)findViewById(R.id.resetButton2);
+        Button button_esm = (Button)findViewById(R.id.esmResult);
+        Button button_pop = (Button)findViewById(R.id.popupResult);
+        Button button_dbClear = (Button)findViewById(R.id.dbClear);
         Button button_confirm = (Button)findViewById(R.id.confirm);
         final TextView textView = (TextView)findViewById(R.id.input_sec);
+        final TextView resultView = (TextView)findViewById(R.id.result);
 
         pref_duration = getSharedPreferences("Duration", Activity.MODE_PRIVATE);
         editor_duration = pref_duration.edit();
@@ -78,6 +90,55 @@ public class MainActivity extends Activity {
                 } catch (Exception e)
                 {
                     Toast.makeText(getApplicationContext(), "올바른 값을 입력해 주세요(1이상 자연수)", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        button_esm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    List<String> results_temp = dbHelper.selectAll("ESM");
+                    int count = results_temp.size();
+                    results = new String[count];
+                    results = results_temp.toArray(results);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, results);
+                    listView.setAdapter(adapter);
+                    resultView.setText(String.valueOf(count)+"개의 결과가 발견되었습니다.");
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        button_pop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    List<String> results_temp = dbHelper.selectAll("POPUP2");
+                    int count = results_temp.size();
+                    results = new String[count];
+                    results = results_temp.toArray(results);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, results);
+                    listView.setAdapter(adapter);
+                    resultView.setText(String.valueOf(count)+"개의 결과가 발견되었습니다.");
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        button_dbClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    dbHelper.clearDB();
+                    resultView.setText("DB의 데이터가 모두 제거되었습니다.");
+                }
+                catch (Exception e){
+                    e.printStackTrace();
                 }
             }
         });
