@@ -45,8 +45,20 @@ public class MainActivity extends Activity {
         Button button_pop = (Button)findViewById(R.id.popupResult);
         Button button_dbClear = (Button)findViewById(R.id.dbClear);
         Button button_confirm = (Button)findViewById(R.id.confirm);
+        Button button_submission = (Button)findViewById(R.id.submission);
         final TextView textView = (TextView)findViewById(R.id.input_sec);
         final TextView resultView = (TextView)findViewById(R.id.result);
+        final TextView sec= (TextView)findViewById(R.id.textView2);
+
+        listView.setVisibility(View.GONE);
+        button.setVisibility(View.GONE);
+        button_esm.setVisibility(View.GONE);
+        button_pop.setVisibility(View.GONE);
+        button_dbClear.setVisibility(View.GONE);
+        textView.setVisibility(View.GONE);
+        resultView.setVisibility(View.GONE);
+        button_confirm.setVisibility(View.GONE);
+        sec.setVisibility(View.GONE);
 
         pref_duration = getSharedPreferences("Duration", Activity.MODE_PRIVATE);
         editor_duration = pref_duration.edit();
@@ -150,6 +162,8 @@ public class MainActivity extends Activity {
                 }
             }
         });
+
+
 
         editor_other.putInt("OtherApp",0);
         editor_other.commit();
