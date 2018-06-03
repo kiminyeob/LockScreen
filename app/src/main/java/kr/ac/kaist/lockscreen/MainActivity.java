@@ -68,6 +68,8 @@ public class MainActivity extends Activity {
         final TextView textView = (TextView)findViewById(R.id.input_sec);
         final TextView resultView = (TextView)findViewById(R.id.result);
         final TextView sec= (TextView)findViewById(R.id.textView2);
+        final TextView explain = (TextView)findViewById(R.id.explain);
+
 
         listView.setVisibility(View.GONE);
         button.setVisibility(View.GONE);
@@ -78,6 +80,23 @@ public class MainActivity extends Activity {
         resultView.setVisibility(View.GONE);
         button_confirm.setVisibility(View.GONE);
         sec.setVisibility(View.GONE);
+
+        explain.setText("저희 실험에 참여해 주셔서 정말 감사합니다:)\n\n\n" +
+                "앱 기능 설명\n"+
+                "- 일정 시간 동안 동안 폰 사용이 없고, 움직임이 감지되지 않을 경우 자동으로 락스크린이 생성됩니다.\n"+
+                "- 락스크린을 해제할 때 설문 창이 출력됩니다. 주어진 설문 질문에 답해 주시면 됩니다.\n"+
+                "- 락스크린을 해제하지 않은 상태에서도 설문에 참여할 수 있습니다.\n\n"+
+                "설문(ESM) 참여 방법\n"+
+                "- 잠금 해제 버튼을 누르면 잠금이 해제가되고 설문 창이 출력됩니다. \n"+
+                "- \"나중에\" 버튼을 누르면 설문이 무시됩니다.\n"+
+                "- 잠금을 유지한 상태에서도 설문에 참여할 수 있습니다.\n"+
+                "- 설문 입력은 가능하다면 구체적으로 입력해주시면 감사드리겠습니다.\n"+
+                "- 홈 버튼을 눌러도 락스크린을 해제할 수 있으나, 가능하면 잠금 해제 버튼을 이용해 주시면 감사하겠습니다:)\n\n"+
+                "문제가 발생할 경우 아래의 연락처로 연락 바랍니다.\n"+
+                "- 김인엽 kiyeob4416@gmail.com, 010-2506-0708\n"+
+                "- 차나래: nr.cha@kaist.ac.kr , 010-4497-3971\n\n"+
+                "(폰을 흔들면 홈 화면으로 이동합니다)\n"
+        );
 
         pref_duration = getSharedPreferences("Duration", Activity.MODE_PRIVATE);
         editor_duration = pref_duration.edit();
