@@ -115,9 +115,9 @@ public class DBHelper extends SQLiteOpenHelper {
             if(results.moveToFirst()){
                 do{
                     StringBuffer data = new StringBuffer();
-                    data.append("시간:"+results.getString(1)+"\n");
-                    data.append("수락여부:"+results.getString(2)+"\n");
-                    data.append("잠금시간:"+results.getString(3));
+                    data.append(results.getString(1)+",");
+                    data.append(results.getString(2)+",");
+                    data.append(results.getString(3)+"\n");
                     dataResultList.add(data.toString());
                     //Log.i("result!!",data.toString());
                 }while(results.moveToNext());
@@ -127,11 +127,11 @@ public class DBHelper extends SQLiteOpenHelper {
             if(results.moveToFirst()){
                 do{
                     StringBuffer data = new StringBuffer();
-                    data.append("시간:"+results.getString(1)+"\n");
-                    data.append("집중중?:"+results.getString(2)+"\n");
-                    data.append("태그:"+results.getString(3)+"\n");
-                    data.append("설명:"+results.getString(4)+"\n");
-                    data.append("잠금시간:"+results.getString(5));
+                    data.append(results.getString(1)+",");
+                    data.append(results.getString(2)+",");
+                    data.append(results.getString(3)+",");
+                    data.append(results.getString(4)+",");
+                    data.append(results.getString(5)+"\n");
                     dataResultList.add(data.toString());
                     //Log.i("result!!",data.toString());
                 }while(results.moveToNext());

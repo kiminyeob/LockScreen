@@ -2,10 +2,14 @@ package kr.ac.kaist.lockscreen;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -16,6 +20,20 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,13 +48,14 @@ public class MainActivity extends Activity {
     protected SharedPreferences.Editor editor_shake =null;
     protected ListView listView;
     protected String[] results;
+    protected DBHelper dbHelper = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final DBHelper dbHelper = new DBHelper(MainActivity.this, "data.db",null,1);
+        dbHelper = new DBHelper(MainActivity.this, "data.db",null,1);
         dbHelper.testDB();
 
         listView = (ListView)findViewById(R.id.listView);
@@ -163,6 +182,29 @@ public class MainActivity extends Activity {
             }
         });
 
+        button_submission.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    Long time = (long)1528049059*(long)1000;
+                    Date df = new java.util.Date(time);
+                    String vv = new SimpleDateFormat("MM dd, yyyy hh:mma").format(df);
+
+                    if (System.currentTimeMillis() < time)
+                        Toast.makeText(getApplicationContext(), "아직 제출 기간이 아닙니다.", Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(getApplicationContext(), "제출이 가능합니다!!", Toast.LENGTH_SHORT).show();
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+                writeFile();
+                //readFile();
+                sendEmail();
+            }
+        });
+
+
 
 
         editor_other.putInt("OtherApp",0);
@@ -209,5 +251,92 @@ public class MainActivity extends Activity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
         startActivity(intent);
         return true;
+    }
+
+    public void writeFile(){
+        dbHelper = new DBHelper(MainActivity.this, "data.db",null,1);
+        List<String> results_esm = dbHelper.selectAll("ESM");
+        int count_esm = results_esm.size();
+        List<String> results_pop = dbHelper.selectAll("POPUP2");
+        int count_pop = results_esm.size();
+
+        //String content = "잘되나요...!";
+        String filename = "Experiment_result.txt";
+
+        try{
+            FileOutputStream os = openFileOutput(filename,MODE_PRIVATE);
+            for (int i=0; i<count_esm; i++){
+                os.write(results_esm.get(i).toString().getBytes());
+            }
+
+            os.write("\n".getBytes());
+
+            for (int i=0; i<count_pop; i++){
+                os.write(results_pop.get(i).toString().getBytes());
+            }
+
+            os.close();
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void readFile(){
+        FileInputStream fis = null;
+        try{
+            fis = getApplicationContext().openFileInput("Experiment_result.txt");
+        }
+        catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
+        InputStreamReader isr = new InputStreamReader(fis);
+        BufferedReader bufferedReader = new BufferedReader(isr);
+        StringBuilder sb = new StringBuilder();
+        String line;
+        try{
+            while ((line = bufferedReader.readLine()) != null) {
+                sb.append(line);
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        Log.i("어떤결과?",sb.toString());
+
+    }
+
+    public void sendEmail(){
+        try{
+            String[] address = {"kiyeob4416@gmail.com"};
+            Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT,"락스크린 실험 결과 입니다 [이름:         ]");
+            shareIntent.putExtra(Intent.EXTRA_TEXT,"결과 입니다.");
+            shareIntent.putExtra(Intent.EXTRA_EMAIL, address);
+            ArrayList<Uri> uris = new ArrayList<Uri>();
+            String shareName = new String(getFilesDir().getAbsolutePath()+"/Experiment_result.txt");
+            File shareFile = new File(shareName);
+            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(),"kr.ac.kaist.lockscreen.fileprovider",shareFile);
+            uris.add(contentUri);
+            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM,uris);
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            String msgStr = "Share...?";
+            startActivity(Intent.createChooser(shareIntent,msgStr));
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "에러가 발생했습니다.", Toast.LENGTH_SHORT).show();
+        }
+
+                /*
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("plain/text");
+        String[] address = {"kiyeob4416@gmail.com"}; //주소를 넣어두면 미리 주소가 들어가 있다.
+        intent.putExtra(Intent.EXTRA_EMAIL, address);
+        intent.putExtra(Intent.EXTRA_SUBJECT, "실험");
+        intent.putExtra(Intent.EXTRA_TEXT, "보낼 내용");
+        //intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:/mnt/sdcard/test.jpg")); //파일 첨부
+        startActivity(intent);
+        */
+
     }
 }

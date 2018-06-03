@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -44,6 +45,18 @@
             android:name=".CountService"
             android:enabled="true"
             android:exported="true"></service>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="kr.ac.kaist.lockscreen.fileprovider"
+            android:grantUriPermissions="true"
+            android:enabled="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
     </application>
 
 </manifest>
