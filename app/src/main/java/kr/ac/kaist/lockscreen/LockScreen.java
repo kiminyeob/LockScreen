@@ -46,6 +46,8 @@ public class LockScreen extends AppCompatActivity {
     protected SharedPreferences.Editor editor_other =null;
     protected SharedPreferences pref_typing=null;
     protected SharedPreferences.Editor editor_typing =null;
+    protected SharedPreferences pref_shaked=null;
+    protected SharedPreferences.Editor editor_shaked =null;
 
     protected Thread myThread=null;
     static Handler handler;
@@ -57,6 +59,7 @@ public class LockScreen extends AppCompatActivity {
     boolean ratio_flag = false;
     protected int difference_time;
     String isFocusing = "-1";
+    protected DBHelper dbHelper;
 
     /*
     ServiceConnection conn = new ServiceConnection() {
@@ -79,7 +82,7 @@ public class LockScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lock_screen);
 
-        final DBHelper dbHelper = new DBHelper(LockScreen.this, "data.db",null,1);
+        dbHelper = new DBHelper(LockScreen.this, "data.db",null,1);
         dbHelper.testDB();
 
         timer = (TextView) findViewById(R.id.timer);
@@ -110,6 +113,9 @@ public class LockScreen extends AppCompatActivity {
 
         pref_other = getSharedPreferences("OtherApp", Activity.MODE_PRIVATE); //다른 앱(홈화면 포함) 실행 중인가?
         editor_other = pref_other.edit();
+
+        pref_shaked = getSharedPreferences("Shaked", Activity.MODE_PRIVATE); //다른 앱(홈화면 포함) 실행 중인가?
+        editor_shaked = pref_shaked.edit();
 
         pref_typing = getSharedPreferences("Typing", Activity.MODE_PRIVATE);
         editor_typing = pref_typing.edit();
@@ -183,6 +189,7 @@ public class LockScreen extends AppCompatActivity {
                         dialog.cancel();
                         }
                     });
+
                     //직접 잠금 해제 --> 나중에
                     builder.setNegativeButton("나중에",new DialogInterface.OnClickListener(){
                         @Override
@@ -197,10 +204,11 @@ public class LockScreen extends AppCompatActivity {
                             editor.putInt("FocusMode", 0);
                             editor.commit();
                             dialog.cancel();
+
                         }
                     });
                     dialog=builder.create();
-                    dialog.setCanceledOnTouchOutside(false);
+                    dialog.setCanceledOnTouchOutside(true);
                     dialog.show();
                 }
                 else{
@@ -232,7 +240,7 @@ public class LockScreen extends AppCompatActivity {
                     @Override
                     public void onCheckedChanged(RadioGroup group, int checkedId) {
                         if(checkedId == R.id.ratio_yes){
-                            question.setText("현재 상황을 입력해 주세요");
+                            question.setText("지금은 어떤 상황인가요? (집중관련해서)");
                             isFocusing = "y";
                         }
                         if(checkedId == R.id.ratio_no){
@@ -285,7 +293,7 @@ public class LockScreen extends AppCompatActivity {
                     }
                 });
                 dialog=builder.create();
-                dialog.setCanceledOnTouchOutside(false);
+                dialog.setCanceledOnTouchOutside(true);
                 dialog.show();
                 }}
         );
@@ -307,6 +315,9 @@ public class LockScreen extends AppCompatActivity {
         super.onResume();
         isStop = true;
 
+        editor_shaked.putInt("Shaked", 0);
+        editor_shaked.commit();
+
         //Log.i("resume", "굿굿");
     }
 
@@ -314,6 +325,18 @@ public class LockScreen extends AppCompatActivity {
     public void onStop(){
         super.onStop();
         //Log.i("onStop", "onStop");
+        SharedPreferences pref_shaked= getSharedPreferences("Shaked", Context.MODE_PRIVATE);
+        int shaked = pref_shaked.getInt("Shaked",-1);
+
+        Log.i("shaked?",String.valueOf(shaked));
+        if (shaked == 1){
+            try{
+                dbHelper.insertData(String.valueOf(System.currentTimeMillis()),"shaking", timer.getText().toString().replace("초",""));
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+        }
 
         editor_flag.putInt("Flag",1);
         editor_flag.commit();
@@ -394,5 +417,3 @@ public class LockScreen extends AppCompatActivity {
         }
     }
 }
-
-

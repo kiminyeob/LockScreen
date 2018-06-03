@@ -33,6 +33,8 @@ public class CountService extends Service implements SensorEventListener {
     protected SharedPreferences.Editor editor_shake =null;
     protected SharedPreferences pref_typing=null;
     protected SharedPreferences.Editor editor_typing =null;
+    protected SharedPreferences pref_shaked=null;
+    protected SharedPreferences.Editor editor_shaked =null;
 
     protected boolean isStop=  false;
     protected int trigger_duration_in_second;
@@ -94,6 +96,9 @@ public class CountService extends Service implements SensorEventListener {
 
         pref_shake = getSharedPreferences("Shake", Activity.MODE_PRIVATE);
         editor_shake = pref_shake.edit();
+
+        pref_shaked = getSharedPreferences("Shaked", Activity.MODE_PRIVATE); //다른 앱(홈화면 포함) 실행 중인가?
+        editor_shaked = pref_shaked.edit();
 
         editor_startService.putInt("StartService",(int)(System.currentTimeMillis()/1000));
         editor_startService.commit();
@@ -160,9 +165,11 @@ public class CountService extends Service implements SensorEventListener {
         mAccel = mAccel * 0.9f+delta;
 
 
-        if(mAccel > 11 && pref_shake.getInt("Shake",-1) == 1 && pref_typing.getInt("Typing",-1) == 0){
+        if(mAccel > 6 && pref_shake.getInt("Shake",-1) == 1 && pref_typing.getInt("Typing",-1) == 0){
             editor_shake.putInt("Shake",0);
             editor_shake.commit();
+            editor_shaked.putInt("Shaked", 1);
+            editor_shaked.commit();
             shake_time = (int)(System.currentTimeMillis()/1000);
             sendBroadcast(new Intent("kr.ac.kaist.lockscreen.shake"));
         }

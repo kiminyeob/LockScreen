@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends Activity {
@@ -102,6 +103,9 @@ public class MainActivity extends Activity {
                     int count = results_temp.size();
                     results = new String[count];
                     results = results_temp.toArray(results);
+                    //Date date = new Date(Long.parseLong(results[0].split("\n")[0].split(":")[1]));
+                    //results[0] = date.toString();
+
                     ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, results);
                     listView.setAdapter(adapter);
                     resultView.setText(String.valueOf(count)+"개의 결과가 발견되었습니다.");
@@ -120,6 +124,9 @@ public class MainActivity extends Activity {
                     int count = results_temp.size();
                     results = new String[count];
                     results = results_temp.toArray(results);
+                    //Date date = new Date(Long.parseLong(results[0].split("\n")[0].split(":")[1]));
+                    //results[0] = date.toString();
+
                     ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, results);
                     listView.setAdapter(adapter);
                     resultView.setText(String.valueOf(count)+"개의 결과가 발견되었습니다.");
