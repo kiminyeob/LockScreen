@@ -14,11 +14,15 @@ public class ScreenReceiver extends BroadcastReceiver {
     protected SharedPreferences.Editor editor =null;
     protected SharedPreferences pref_other=null;
     protected SharedPreferences.Editor editor_other =null;
+    protected SharedPreferences pref_shaked=null;
+    protected SharedPreferences.Editor editor_shaked =null;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences pref= context.getSharedPreferences("FocusMode",Context.MODE_PRIVATE);
         int focus = pref.getInt("FocusMode",-1);
+        pref_shaked = context.getSharedPreferences("Shaked", Activity.MODE_PRIVATE);
+        editor_shaked = pref_shaked.edit();
 
         //pref_other = context.getSharedPreferences("OtherApp", Activity.MODE_PRIVATE); //다른 앱(홈화면 포함) 실행 중인가?
         //editor_other = pref_other.edit();
@@ -63,6 +67,8 @@ public class ScreenReceiver extends BroadcastReceiver {
 
         if (intent.getAction().equals("kr.ac.kaist.lockscreen.shake")) {
             Log.i("Shake","움직임을 잘 받았다.");
+            SharedPreferences.Editor editor_shaked = pref_shaked.edit();
+
             final Intent intentService = new Intent(context, CountService.class);
             context.stopService(intentService);
             context.startService(intentService);

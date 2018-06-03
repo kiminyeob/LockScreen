@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -184,5 +185,15 @@ public class MainActivity extends Activity {
             }
         }
         return false;
+    }
+
+    //뒤로가기 키 막기
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        final Intent intent = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
+        intent.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
+        startActivity(intent);
+        return true;
     }
 }

@@ -114,8 +114,10 @@ public class LockScreen extends AppCompatActivity {
         pref_other = getSharedPreferences("OtherApp", Activity.MODE_PRIVATE); //다른 앱(홈화면 포함) 실행 중인가?
         editor_other = pref_other.edit();
 
-        pref_shaked = getSharedPreferences("Shaked", Activity.MODE_PRIVATE); //다른 앱(홈화면 포함) 실행 중인가?
+        pref_shaked = getSharedPreferences("Shaked", Activity.MODE_PRIVATE);
         editor_shaked = pref_shaked.edit();
+        editor_shaked.putInt("Shaked", 0);
+        editor_shaked.commit();
 
         pref_typing = getSharedPreferences("Typing", Activity.MODE_PRIVATE);
         editor_typing = pref_typing.edit();
@@ -126,14 +128,15 @@ public class LockScreen extends AppCompatActivity {
                 Random random = new Random();
                 float percentage = random.nextFloat();
                 Log.i("확률",String.valueOf(percentage));
+                editor_shaked.putInt("Shaked", 0);
+                editor_shaked.commit();
 
                 //홈화면으로 가는 intent
                 final Intent intent = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
                 intent.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
 
-                //30%확률로 창이 뜸
-                if (percentage < 0.5){
+                if (percentage < 1){
                     editor_typing.putInt("Typing", 1);
                     editor_typing.commit();
 
@@ -181,6 +184,7 @@ public class LockScreen extends AppCompatActivity {
 
                         editor_typing.putInt("Typing", 0);
                         editor_typing.commit();
+
                         stopService(intentService);
                         startService(intentService);
                         startActivity(intent);
@@ -198,6 +202,7 @@ public class LockScreen extends AppCompatActivity {
 
                             editor_typing.putInt("Typing", 0);
                             editor_typing.commit();
+
                             stopService(intentService);
                             startService(intentService);
                             startActivity(intent);
@@ -228,6 +233,9 @@ public class LockScreen extends AppCompatActivity {
                 editor_typing.commit();
                 SharedPreferences pref_count= getSharedPreferences("Count", Context.MODE_PRIVATE);
                 int count = pref_count.getInt("Count",-1);
+
+                editor_shaked.putInt("Shaked", 0);
+                editor_shaked.commit();
 
                 //사용자 입력 UI정의
                 LayoutInflater inflater = getLayoutInflater();
@@ -317,7 +325,6 @@ public class LockScreen extends AppCompatActivity {
 
         editor_shaked.putInt("Shaked", 0);
         editor_shaked.commit();
-
         //Log.i("resume", "굿굿");
     }
 
@@ -325,18 +332,20 @@ public class LockScreen extends AppCompatActivity {
     public void onStop(){
         super.onStop();
         //Log.i("onStop", "onStop");
-        SharedPreferences pref_shaked= getSharedPreferences("Shaked", Context.MODE_PRIVATE);
         int shaked = pref_shaked.getInt("Shaked",-1);
 
-        Log.i("shaked?",String.valueOf(shaked));
+        //Log.i("shaked?",String.valueOf(shaked));
         if (shaked == 1){
             try{
-                dbHelper.insertData(String.valueOf(System.currentTimeMillis()),"shaking", timer.getText().toString().replace("초",""));
+                dbHelper.insertData(String.valueOf(System.currentTimeMillis()),"shaking", String.valueOf(difference_time));
             }
             catch (Exception e){
                 e.printStackTrace();
             }
         }
+
+        editor_shaked.putInt("Shaked", 0);
+        editor_shaked.commit();
 
         editor_flag.putInt("Flag",1);
         editor_flag.commit();
@@ -392,28 +401,32 @@ public class LockScreen extends AppCompatActivity {
         SharedPreferences pref_count= getSharedPreferences("Count", Context.MODE_PRIVATE);
         int previous_time = pref_count.getInt("Count",-1); //Focus Mode가 1이 된 순간
         int current_time = (int)System.currentTimeMillis()/1000;
-        difference_time = current_time - previous_time;
 
-        int hour = 0;
-        int min = 0;
-        int sec = 0;
+        if (pref_shaked.getInt("Shaked",-1) == 0) {
 
-        if (difference_time > 0){
-            if (difference_time < 60){
-                sec = difference_time;
-                timer.setText(String.valueOf(sec)+"초");
-            } else if (difference_time < 3600){
-                min = difference_time / 60;
-                sec = difference_time % 60;
-                timer.setText(String.valueOf(min)+"분 "+String.valueOf(sec)+"초");
+            difference_time = current_time - previous_time;
+
+            int hour = 0;
+            int min = 0;
+            int sec = 0;
+
+            if (difference_time > 0) {
+                if (difference_time < 60) {
+                    sec = difference_time;
+                    timer.setText(String.valueOf(sec) + "초");
+                } else if (difference_time < 3600) {
+                    min = difference_time / 60;
+                    sec = difference_time % 60;
+                    timer.setText(String.valueOf(min) + "분 " + String.valueOf(sec) + "초");
+                } else {
+                    hour = difference_time / 3600;
+                    min = (difference_time % 3600) / 60;
+                    sec = difference_time % 60;
+                    timer.setText(String.valueOf(hour) + "시간" + String.valueOf(min) + "분 " + String.valueOf(sec) + "초");
+                }
             } else {
-                hour = difference_time / 3600;
-                min = (difference_time % 3600) / 60;
-                sec = difference_time % 60;
-                timer.setText(String.valueOf(hour)+"시간"+String.valueOf(min)+"분 "+String.valueOf(sec)+"초");
+                timer.setText("잠금 모드 해제!");
             }
-        }else {
-            timer.setText("잠금 모드 해제!");
         }
     }
 }
