@@ -128,8 +128,10 @@ public class LockScreen extends AppCompatActivity {
                 Random random = new Random();
                 float percentage = random.nextFloat();
                 Log.i("확률",String.valueOf(percentage));
+
                 editor_shaked.putInt("Shaked", 0);
                 editor_shaked.commit();
+
 
                 //홈화면으로 가는 intent
                 final Intent intent = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
@@ -137,8 +139,10 @@ public class LockScreen extends AppCompatActivity {
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
 
                 if (percentage < 1){
+
                     editor_typing.putInt("Typing", 1);
                     editor_typing.commit();
+
 
                     //사용자 입력 UI정의
                     LayoutInflater inflater = getLayoutInflater();
@@ -323,6 +327,9 @@ public class LockScreen extends AppCompatActivity {
         super.onResume();
         isStop = true;
 
+        editor_typing.putInt("Typing", 1);
+        editor_typing.commit();
+
         editor_shaked.putInt("Shaked", 0);
         editor_shaked.commit();
         //Log.i("resume", "굿굿");
@@ -349,6 +356,9 @@ public class LockScreen extends AppCompatActivity {
 
         editor_flag.putInt("Flag",1);
         editor_flag.commit();
+
+        editor_typing.putInt("Typing", 0);
+        editor_typing.commit();
 
         isStop = false;
         myThread.interrupt();

@@ -83,7 +83,7 @@ public class CountService extends Service implements SensorEventListener {
         editor_count = pref_count.edit();
 
         pref_duration = getSharedPreferences("Duration", Activity.MODE_PRIVATE);
-        trigger_duration_in_second = pref_duration.getInt("Duration",-1);
+        //trigger_duration_in_second = pref_duration.getInt("Duration",-1);
         trigger_duration_in_second = 300; //20sec
 
 
