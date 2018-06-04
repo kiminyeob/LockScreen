@@ -16,6 +16,8 @@ public class ScreenReceiver extends BroadcastReceiver {
     protected SharedPreferences.Editor editor_other =null;
     protected SharedPreferences pref_shaked=null;
     protected SharedPreferences.Editor editor_shaked =null;
+    protected SharedPreferences pref_typing=null;
+    protected SharedPreferences.Editor editor_typing =null;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -23,16 +25,24 @@ public class ScreenReceiver extends BroadcastReceiver {
         int focus = pref.getInt("FocusMode",-1);
         pref_shaked = context.getSharedPreferences("Shaked", Activity.MODE_PRIVATE);
         editor_shaked = pref_shaked.edit();
+        pref_typing = context.getSharedPreferences("Typing", Activity.MODE_PRIVATE);
+        editor_typing = pref_typing.edit();
 
         //pref_other = context.getSharedPreferences("OtherApp", Activity.MODE_PRIVATE); //다른 앱(홈화면 포함) 실행 중인가?
         //editor_other = pref_other.edit();
 
 
-        if (intent.getAction().equals(intent.ACTION_SCREEN_ON) && focus == 1){
-            Log.i("information","스마트폰 화면이 켜짐(타이머 종료)");
-            Intent i = new Intent(context,LockScreen.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);
+        if (intent.getAction().equals(intent.ACTION_SCREEN_ON)) {
+
+            editor_typing.putInt("Typing", 1);
+            editor_typing.commit();
+
+            if (focus == 1) {
+                Log.i("information","스마트폰 화면이 켜짐(타이머 종료)");
+                Intent i = new Intent(context,LockScreen.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(i);
+            }
         }
 
         if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
@@ -41,6 +51,9 @@ public class ScreenReceiver extends BroadcastReceiver {
             SharedPreferences.Editor editor_flag = pref_flag.edit();
             int flag = pref_flag.getInt("Flag",-1);
             //int otherApp = pref_other.getInt("OtherApp",-1);
+
+            editor_typing.putInt("Typing", 0);
+            editor_typing.commit();
 
             Log.i("information","스마트폰 화면이 꺼짐" + String.valueOf(flag));
 

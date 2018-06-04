@@ -132,7 +132,6 @@ public class LockScreen extends AppCompatActivity {
                 editor_shaked.putInt("Shaked", 0);
                 editor_shaked.commit();
 
-
                 //홈화면으로 가는 intent
                 final Intent intent = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
                 intent.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
@@ -142,7 +141,6 @@ public class LockScreen extends AppCompatActivity {
 
                     editor_typing.putInt("Typing", 1);
                     editor_typing.commit();
-
 
                     //사용자 입력 UI정의
                     LayoutInflater inflater = getLayoutInflater();
@@ -180,14 +178,19 @@ public class LockScreen extends AppCompatActivity {
                         success2 = dbHelper.insertData(String.valueOf(System.currentTimeMillis()),"y", String.valueOf(difference_time));
                         isFocusing = "-1";
 
+                        editor_flag.putInt("Flag",0);
+                        editor_flag.commit();
+
                         if(success && success2) {
                             Toast.makeText(getApplicationContext(), "저장되었습니다. 감사합니다:)", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(getApplicationContext(), "저장 중 문제가 발생했습니다.", Toast.LENGTH_SHORT).show();
                         }
 
+                        /*
                         editor_typing.putInt("Typing", 0);
                         editor_typing.commit();
+                        */
 
                         stopService(intentService);
                         startService(intentService);
@@ -204,8 +207,13 @@ public class LockScreen extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int id){
                             dbHelper.insertData(String.valueOf(System.currentTimeMillis()),"n", String.valueOf(difference_time));
 
+                            /*
                             editor_typing.putInt("Typing", 0);
                             editor_typing.commit();
+                            */
+                            editor_flag.putInt("Flag",0);
+                            editor_flag.commit();
+
 
                             stopService(intentService);
                             startService(intentService);
@@ -289,8 +297,10 @@ public class LockScreen extends AppCompatActivity {
                         }
                         isFocusing = "-1";
 
+                        /*
                         editor_typing.putInt("Typing", 0);
                         editor_typing.commit();
+                        */
                            ratio_flag = false;
                            dialog.cancel();
                         }
@@ -299,8 +309,10 @@ public class LockScreen extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int id){
 
+                        /*
                         editor_typing.putInt("Typing", 0);
                         editor_typing.commit();
+                        */
                         dialog.cancel();
                     }
                 });
@@ -327,12 +339,17 @@ public class LockScreen extends AppCompatActivity {
         super.onResume();
         isStop = true;
 
+        /*
         editor_typing.putInt("Typing", 1);
         editor_typing.commit();
+        */
 
         editor_shaked.putInt("Shaked", 0);
         editor_shaked.commit();
         //Log.i("resume", "굿굿");
+
+        editor_flag.putInt("Flag",1);
+        editor_flag.commit();
     }
 
     @Override
@@ -354,11 +371,10 @@ public class LockScreen extends AppCompatActivity {
         editor_shaked.putInt("Shaked", 0);
         editor_shaked.commit();
 
-        editor_flag.putInt("Flag",1);
-        editor_flag.commit();
-
+        /*
         editor_typing.putInt("Typing", 0);
         editor_typing.commit();
+        */
 
         isStop = false;
         myThread.interrupt();
