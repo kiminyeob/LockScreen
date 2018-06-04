@@ -75,7 +75,6 @@ public class CountService extends Service implements SensorEventListener {
         shake_flag = true;
 
         //Log.i("test", "서비스 시작");
-
         pref = getSharedPreferences("FocusMode", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
