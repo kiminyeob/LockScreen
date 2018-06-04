@@ -284,9 +284,7 @@ public class MainActivity extends Activity {
             for (int i=0; i<count_esm-1; i++){
                 os.write(results_esm.get(i).toString().getBytes());
             }
-
             os.write("\n".getBytes());
-
             for (int i=0; i<count_pop-1; i++){
                 os.write(results_pop.get(i).toString().getBytes());
             }
