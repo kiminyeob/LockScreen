@@ -75,7 +75,6 @@ public class CountService extends Service implements SensorEventListener {
         shake_flag = true;
 
         //Log.i("test", "서비스 시작");
-
         pref = getSharedPreferences("FocusMode", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
@@ -85,7 +84,6 @@ public class CountService extends Service implements SensorEventListener {
         pref_duration = getSharedPreferences("Duration", Activity.MODE_PRIVATE);
         //trigger_duration_in_second = pref_duration.getInt("Duration",-1);
         trigger_duration_in_second = 300; //20sec
-
 
         pref_typing = getSharedPreferences("Typing", Activity.MODE_PRIVATE);
         editor_typing = pref_typing.edit();
