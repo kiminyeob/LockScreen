@@ -281,14 +281,22 @@ public class MainActivity extends Activity {
 
         try{
             FileOutputStream os = openFileOutput(filename,MODE_PRIVATE);
-            for (int i=0; i<count_esm; i++){
-                os.write(results_esm.get(i).toString().getBytes());
+            for (int i=0; i<count_esm-1; i++){
+                try{
+                    os.write(results_esm.get(i).toString().getBytes());
+                }catch(NullPointerException e){
+                    e.printStackTrace();
+                }
             }
 
             os.write("\n".getBytes());
 
-            for (int i=0; i<count_pop; i++){
-                os.write(results_pop.get(i).toString().getBytes());
+            for (int i=0; i<count_pop-1; i++){
+                try {
+                    os.write(results_pop.get(i).toString().getBytes());
+                }catch (NullPointerException e){
+                    e.printStackTrace();
+                }
             }
 
             os.close();
