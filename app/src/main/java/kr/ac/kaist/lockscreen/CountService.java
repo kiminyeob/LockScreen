@@ -141,6 +141,7 @@ public class CountService extends Service implements SensorEventListener {
                 .build();
         startForeground(9999, notiEx);
 
+
         //Screen receiver로부터 Screen On/OFF event를 받을 수 있음
         if( intent == null)
         {
