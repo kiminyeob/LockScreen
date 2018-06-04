@@ -62,7 +62,6 @@ public class CountService extends Service implements SensorEventListener {
     public CountService() {
     }
 
-
     @Override
     public void onCreate(){
         super.onCreate();
