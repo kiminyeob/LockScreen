@@ -86,7 +86,6 @@ public class CountService extends Service implements SensorEventListener {
         //trigger_duration_in_second = pref_duration.getInt("Duration",-1);
         trigger_duration_in_second = 300; //20sec
 
-
         pref_typing = getSharedPreferences("Typing", Activity.MODE_PRIVATE);
         editor_typing = pref_typing.edit();
 
